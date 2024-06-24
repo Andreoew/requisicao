@@ -1,12 +1,8 @@
-import sys
-import string
-from pathlib import Path
-
-sys.path.append('utils')
-
 from utils.controls import *
 from utils.classRegex import REGEX
+import string
 from random import choice
+from pathlib import Path
 from utils.sqlmanager import inserir_dados, ver_dados, encriptar_valor, editar_dados
 
 def adminPanel(page: ft.Page, username: str = 'Admin'):

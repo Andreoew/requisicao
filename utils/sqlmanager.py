@@ -59,7 +59,7 @@ def encriptar_valor(value: str):
 # criar_tabela('usuarios')
 # inserir_dados(
 #     nomeTabela='usuarios',
-#     dados=['André', 'andre', 'andre@adss.com.br', SQLITE('usuarios').encryptPass('adss123'), 'Administrador', 'Activo']
+#     dados=['André', 'andre', 'contato@adss.com.br', SQLITE('usuarios').encryptPass('adss123'), 'Administrador', 'Activo']
 # )
 # inserir_dados(
 #     nomeTabela='usuarios',

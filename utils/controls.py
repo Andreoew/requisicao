@@ -30,7 +30,7 @@ def TextField(hint_text: str, size: int, color: ft.colors, prefix_icon: ft.icons
 
   return textfield
 
-def FloatingButton(bgcolor: ft.colors, text: str = None, icon: ft.icons = None, on_click: ft.ControlEvent = None, width: int = None, height: int = None, col: dict = {'sm': 12, 'md': 4}):
+def FloatingButton(bgcolor: ft.colors, text: str = None, icon: ft.icons = None, opacity: ft.OptionalNumber = None , on_click: ft.ControlEvent = None, width: int = None, height: int = None, visible: bool = None, disabled: bool = None, col: dict = {'sm': 12, 'md': 4}):
 
   floatingbutton = ft.FloatingActionButton(
     bgcolor=bgcolor,
@@ -41,6 +41,9 @@ def FloatingButton(bgcolor: ft.colors, text: str = None, icon: ft.icons = None, 
     col=col,
     on_click=on_click,
     mouse_cursor=ft.MouseCursor.CLICK,
+    visible=visible,
+    disabled=disabled,
+    opacity=opacity,
   )
 
   return floatingbutton

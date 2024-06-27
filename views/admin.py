@@ -15,7 +15,7 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
     
     def manage_users(e):
         
-        def manage_user(e: ft.ControlEvent, id: int):
+        def manage_user(e: ft.ControlEvent, id: int):               
             
             def delete_user(e: ft.ControlEvent, id: int):
                 
@@ -52,12 +52,21 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
                 user.value = dados[2]
                 email.value = dados[3]
                 cargo.value = dados[5]
-                status.value = dados[6]
+                status.value = dados[6]            
+                
                 
                 btn_addUser.on_click = lambda e, id = id: add_user(e, id= id)
+                btn_addUser.icon = 'Edit'
+                
+                btn_CancelEdit.disabled = False
+                btn_CancelEdit.opacity=1
+                
                 page.dialog.open = False
+               
                 load_users(e)
                 page.update()
+                btn_addUser.icon = 'Add'
+                
             
             if e.control.icon == 'delete':
                 page.dialog = AlertDialog(
@@ -84,6 +93,7 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
                 )
                 
                 page.dialog.open = True
+            
             
             page.update()
         
@@ -214,6 +224,21 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
             
             load_users(e)
             page.update()
+            
+        def cancelEdit(e: ft.ControlEvent):
+                # Limpar os campos para o estado original ou vazio
+                nome.value = ''
+                user.value = ''
+                email.value = ''
+                cargo.value = ''
+                status.value = ''
+                
+                # Habilitar o botão de cancelar se necessário
+                btn_CancelEdit.disabled = True
+                btn_CancelEdit.opacity = 0.20
+                
+                # Atualizar a interface, se necessário
+                page.update()
         
         tela_principal.content = ft.Column(
             controls=[
@@ -271,7 +296,7 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
                                 ft.dropdown.Option(text='Administrador'),
                                 ft.dropdown.Option(text='Gestor'),
                             ],
-                            col={'sm': 12, 'md': 4, 'lg': 2.28}
+                            col={'sm': 12, 'md': 4, 'lg': 2.00}
                         ),
                         
                         status := ft.Dropdown(
@@ -294,15 +319,25 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
                                 ft.dropdown.Option(text='Ativo'),
                                 ft.dropdown.Option(text='Inativo'),
                             ],
-                            col={'sm': 12, 'md': 4, 'lg': 2.28}
+                            col={'sm': 12, 'md': 4, 'lg': 1.90}
                         ),
                         
+                       
                         btn_addUser := FloatingButton(
                             bgcolor=ft.colors.BLUE,
                             icon=ft.icons.ADD,
                             col={'sm': 12, 'md': 4, 'lg': 0.6},
                             on_click=add_user
+                        ),
+                        
+                        btn_CancelEdit := FloatingButton(
+                            bgcolor=ft.colors.RED,
+                            icon=ft.icons.CANCEL,
+                            col={'sm': 12, 'md': 4, 'lg': 0.6},
+                            opacity=0.20,
+                            on_click=cancelEdit
                         )
+                          
                     ]
                 ),
                 

@@ -3,7 +3,7 @@ from utils.classRegex import REGEX
 import string
 from random import choice
 from pathlib import Path
-from utils.sqlmanager import inserir_dados, ver_dados, encriptar_valor, editar_dados
+from utils.sqlmanager import inserir_dados, ver_dados, encriptar_valor, editar_dados, apagar_dados
 
 def adminPanel(page: ft.Page, username: str = 'Admin'):
     
@@ -15,7 +15,65 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
     
     def manage_users(e):
         
+        def manage_user(e: ft.ControlEvent, id: int):
+            
+            def delete_user(e: ft.ControlEvent, id: int):
+                
+                admins = ver_dados(
+                    nomeTabela='usuarios',
+                    conditions=f'cargo = "Administrador"',
+                    colunas='id'
+                )
+                
+                if len(admins) == 1 and int(id) == int(admins[0][0]):               
+                    page.snack_bar = SnackBar(value='Não pode apagar este usuário', icon=ft.icons.CLOSE, color=ft.colors.RED)
+                    page.snack_bar.open = True
+                
+                else:
+                    apagar_dados(
+                        nomeTabela='usuarios',
+                        conditions=f'id = "{id}"'
+                    )
+                
+                    page.snack_bar = SnackBar(value='Usuário excluido com sucesso', icon=ft.icons.VERIFIED, color=ft.colors.BLUE)
+                    page.snack_bar.open = True
+                
+                page.dialog.open = False
+                load_users(e)
+                page.update()
+                
+            def edit_user(e: ft.ControlEvent, id: int):
+                pass
+            
+            if e.control.icon == 'delete':
+                page.dialog = AlertaDialog(
+                    page=page,
+                    title=f'Usuáruio id: {id}',
+                    value=f'Deseja apagar o usuário id {id}?',
+                    text_button='Confirmar',
+                    icon=ft.icons.DELETE,
+                    color=ft.colors.RED,
+                    on_click=lambda e, id = id: delete_user(e, id=id)
+                )
+                
+                page.dialog.open = True
+            elif e.control.icon == 'edit':
+                page.dialog = AlertaDialog(
+                    page=page,
+                    title=f'Usuáruio id: "{id}"',
+                    value=f'Deseja editar o usuário id "{id}"',
+                    text_button='Confirmar',
+                    icon=ft.icons.EDIT,
+                    color=ft.colors.BLUE,
+                    on_click=clicked
+                )
+                
+                page.dialog.open = True
+            
+            page.update()
+        
         def load_users(e):
+            
             
             tabela_usuarios.rows.clear()
             
@@ -38,8 +96,8 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
                                 ft.DataCell(
                                     ft.Row(
                                         controls=[
-                                            IconButton(icon=ft.icons.EDIT, color=ft.colors.BLUE, size=20, on_click=clicked),
-                                            IconButton(icon=ft.icons.DELETE, color=ft.colors.RED, size=20, on_click=clicked),
+                                            IconButton(icon=ft.icons.EDIT, color=ft.colors.BLUE, size=20, on_click=lambda e, id= dado[0]: manage_user(e, id)),
+                                            IconButton(icon=ft.icons.DELETE, color=ft.colors.RED, size=20, on_click=lambda e, id= dado[0]: manage_user(e, id)),
                                         ]
                                     )
                                 )
@@ -72,6 +130,8 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
                         with open(f'Users/{user.value}.txt', mode='w', encoding='UTF-8') as arquivo:
                             arquivo.writelines(f'Username: {user.value}\nPassword: {password}')
                             
+                        print(nome.value, user.value, email.value, password, cargo.value, status.value)
+                            
                         inserir_dados(
                             nomeTabela='usuarios',
                             dados=[nome.value, user.value, email.value, encriptar_valor(password), cargo.value, status.value]
@@ -84,7 +144,7 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
                         status.value = None
                         nome.autofocus = True
                         
-                        page.snack_bar = SnackBar(value='Usuário Criado com sucesso', icon=ft.icons.CLOSE, color=ft.colors.RED)
+                        page.snack_bar = SnackBar(value='Usuário Criado com sucesso', icon=ft.icons.CHECK, color=ft.colors.BLUE)
                         page.snack_bar.open = True
                     
                     else:

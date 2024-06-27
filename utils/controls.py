@@ -77,3 +77,59 @@ def IconButton(icon: ft.icons, color: ft.colors, size: int, on_click: ft.Control
   )
   
   return iconbutton
+
+def AlertaDialog(page: ft.Page, title: str, value: str, text_button: str, icon: ft.icons, color: ft.colors, on_click: ft.ControlEvent = None, name: str = None, size: int = None):
+  
+  def closeMsgbox(e):
+    alertadialog.open = False
+    
+    page.update()
+  
+  alertadialog = ft.AlertDialog(
+    modal=False,
+    title=ft.Row(
+      controls=[
+        ft.Text(
+          value=title,
+          size=15,
+          color=ft.colors.WHITE,
+          weight='bold'
+        ),
+        IconButton(
+          icon=ft.icons.CLOSE,
+          color=ft.colors.RED,
+          size=15,
+          on_click=closeMsgbox
+        )
+      ],
+      alignment=ft.MainAxisAlignment.SPACE_BETWEEN
+    ),
+    content=ft.Row(
+      controls=[
+        ft.Icon(
+          name=name,
+          color=color,
+          size=size,
+        ),
+        ft.Text(
+          value=value,
+          size=13,
+          color=color,
+          weight='bold'
+        )
+      ]
+    ),
+    actions=[
+      ft.ElevatedButton(
+        text=text_button,
+        width=120,
+        height=35,
+        bgcolor=ft.colors.BLUE,
+        on_click=on_click
+      )
+    ],
+    actions_alignment=ft.MainAxisAlignment.END
+    
+  )
+  
+  return alertadialog

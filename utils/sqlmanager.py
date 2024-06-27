@@ -35,6 +35,14 @@ def editar_dados(nomeTabela: str, dados: list):
             Valor=dados[1],
             conditions=dados[2]
         )
+        
+def apagar_dados(nomeTabela: str, conditions: str = ''):
+    database = SQLITE(nomeTabela)
+    
+    database.apagarDados(
+        nomeTabela=nomeTabela,
+        conditions=conditions
+    )
 
 def ver_dados(nomeTabela: str, conditions: str = '', colunas: str = '*'):
     
@@ -54,6 +62,8 @@ def encriptar_valor(value: str):
     encrypted = database.encryptPass(value)
     
     return encrypted
+
+
 
     
 # criar_tabela('usuarios')

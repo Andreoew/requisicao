@@ -43,7 +43,21 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
                 page.update()
                 
             def edit_user(e: ft.ControlEvent, id: int):
-                pass
+                dados = ver_dados(
+                    nomeTabela='usuarios',
+                    conditions=f'id = "{id}"'
+                )[0]
+                
+                nome.value = dados[1]
+                user.value = dados[2]
+                email.value = dados[3]
+                cargo.value = dados[5]
+                status.value = dados[6]
+                
+                btn_addUser.on_click = lambda e, id = id: add_user(e, id= id)
+                page.dialog.open = False
+                load_users(e)
+                page.update()
             
             if e.control.icon == 'delete':
                 page.dialog = AlertaDialog(
@@ -53,7 +67,7 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
                     text_button='Confirmar',
                     icon=ft.icons.DELETE,
                     color=ft.colors.RED,
-                    on_click=lambda e, id = id: delete_user(e, id=id)
+                    on_click=lambda e, id = id: delete_user(e, id)
                 )
                 
                 page.dialog.open = True
@@ -61,11 +75,11 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
                 page.dialog = AlertaDialog(
                     page=page,
                     title=f'Usuáruio id: "{id}"',
-                    value=f'Deseja editar o usuário id "{id}"',
+                    value=f'Deseja editar o usuário id {id}?',
                     text_button='Confirmar',
                     icon=ft.icons.EDIT,
                     color=ft.colors.BLUE,
-                    on_click=clicked
+                    on_click=lambda e, id = id: edit_user(e, id)
                 )
                 
                 page.dialog.open = True
@@ -107,49 +121,84 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
             
             page.update()
         
-        def add_user(e):
+        def add_user(e: ft.ControlEvent, id: int = ''):
             if nome.value != '' and user.value != '' and email.value != '' and cargo.value != None and status.value != None:
                 if REGEX().verificar_email(email.value) == True:
-                    dados = ver_dados(
-                        nomeTabela='usuarios',
-                        conditions=f'username = "{user.value}" OR email = "{email.value}"',
-                        colunas='nome'
-                    )
-                    
-                    if len(dados) == 0:
-                        
-                        strings = string.ascii_letters + "0123456789" + "!@$?"
-                        password = ''
-                        
-                        for _ in range(5):
-                            password += choice(strings)
-                        
-                        path = Path.cwd() / "Users"
-                        path.mkdir(parents=True, exist_ok=True)
-                        
-                        with open(f'Users/{user.value}.txt', mode='w', encoding='UTF-8') as arquivo:
-                            arquivo.writelines(f'Username: {user.value}\nPassword: {password}')
-                            
-                        print(nome.value, user.value, email.value, password, cargo.value, status.value)
-                            
-                        inserir_dados(
+                    if id == '':
+                        dados = ver_dados(
                             nomeTabela='usuarios',
-                            dados=[nome.value, user.value, email.value, encriptar_valor(password), cargo.value, status.value]
+                            conditions=f'username = "{user.value}" OR email = "{email.value}"',
+                            colunas='nome'
                         )
                         
+                        if len(dados) == 0:
+                            
+                            strings = string.ascii_letters + "0123456789" + "!@$?"
+                            password = ''
+                            
+                            for _ in range(5):
+                                password += choice(strings)
+                            
+                            path = Path.cwd() / "Users"
+                            path.mkdir(parents=True, exist_ok=True)
+                            
+                            with open(f'Users/{user.value}.txt', mode='w', encoding='UTF-8') as arquivo:
+                                arquivo.writelines(f'Username: {user.value}\nPassword: {password}')
+                                
+                            
+                                
+                            inserir_dados(
+                                nomeTabela='usuarios',
+                                dados=[nome.value, user.value, email.value, encriptar_valor(password), cargo.value, status.value]
+                            )
+                            
+                            nome.value = ''
+                            user.value = ''
+                            email.value = ''
+                            cargo.value = None
+                            status.value = None
+                            nome.autofocus = True
+                            
+                            page.snack_bar = SnackBar(value='Usuário Criado com sucesso', icon=ft.icons.CHECK, color=ft.colors.BLUE)
+                            page.snack_bar.open = True
+                        
+                        else:
+                            page.snack_bar = SnackBar(value='Já existe um usuários com estes dados', icon=ft.icons.CLOSE, color=ft.colors.RED)
+                            page.snack_bar.open = True
+                    
+                    else:
+                        dados = ver_dados(
+                            nomeTabela='usuarios'
+                        )
+                        if len(dados) == 1 and (cargo.value != 'Administrador' or status.value != 'Activo'):
+                            page.snack_bar = SnackBar(value='Não pode editar este usuário', icon=ft.icons.CLOSE, color=ft.colors.RED)
+                            page.snack_bar.open = True
+                        
+                        else:
+                            dicionario = {
+                                'nome': nome.value,
+                                'username': user.value,
+                                'email': email.value,
+                                'cargo': cargo.value,
+                                'status': status.value
+                            }
+                            
+                            for coluna in dicionario:
+                                editar_dados(
+                                    nomeTabela='usuarios',
+                                    dados=[coluna, dicionario[coluna], f'id = "{id}"'],
+                                )
+                                
+                            page.snack_bar = SnackBar(value=f'Usuarios {id} atualizado com sucesso', icon=ft.icons.VERIFIED, color=ft.colors.BLUE)
+                            page.snack_bar.open = True
+                                
                         nome.value = ''
                         user.value = ''
                         email.value = ''
                         cargo.value = None
                         status.value = None
                         nome.autofocus = True
-                        
-                        page.snack_bar = SnackBar(value='Usuário Criado com sucesso', icon=ft.icons.CHECK, color=ft.colors.BLUE)
-                        page.snack_bar.open = True
-                    
-                    else:
-                        page.snack_bar = SnackBar(value='Já existe um usuários com estes dados', icon=ft.icons.CLOSE, color=ft.colors.RED)
-                        page.snack_bar.open = True
+                            
                 
                 else:
                     email.value = ''
@@ -246,7 +295,7 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
                             col={'sm': 12, 'md': 4, 'lg': 2.28}
                         ),
                         
-                        FloatingButton(
+                        btn_addUser := FloatingButton(
                             bgcolor=ft.colors.BLUE,
                             icon=ft.icons.ADD,
                             col={'sm': 12, 'md': 4, 'lg': 0.6},

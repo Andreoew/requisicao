@@ -59,7 +59,7 @@ def ver_dados(nomeTabela: str, conditions: str = '', colunas: str = '*'):
 def encriptar_valor(value: str):
     
     database = SQLITE('usuarios')
-    encrypted = database.encryptPass(value)
+    encrypted = database.encriptarValor(value)
     
     return encrypted
 

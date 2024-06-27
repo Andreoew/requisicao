@@ -78,7 +78,7 @@ def IconButton(icon: ft.icons, color: ft.colors, size: int, on_click: ft.Control
   
   return iconbutton
 
-def AlertaDialog(page: ft.Page, title: str, value: str, text_button: str, icon: ft.icons, color: ft.colors, on_click: ft.ControlEvent = None, name: str = None, size: int = None):
+def AlertDialog(page: ft.Page, title: str, value: str, text_button: str, icon: ft.icons, color: ft.colors, on_click: ft.ControlEvent = None, name: str = None, size: int = None):
   
   def closeMsgbox(e):
     alertadialog.open = False

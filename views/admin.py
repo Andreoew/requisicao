@@ -60,7 +60,7 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
                 page.update()
             
             if e.control.icon == 'delete':
-                page.dialog = AlertaDialog(
+                page.dialog = AlertDialog(
                     page=page,
                     title=f'Usuáruio id: {id}',
                     value=f'Deseja apagar o usuário id {id}?',
@@ -71,8 +71,9 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
                 )
                 
                 page.dialog.open = True
+                
             elif e.control.icon == 'edit':
-                page.dialog = AlertaDialog(
+                page.dialog = AlertDialog(
                     page=page,
                     title=f'Usuáruio id: "{id}"',
                     value=f'Deseja editar o usuário id {id}?',
@@ -168,9 +169,10 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
                     
                     else:
                         dados = ver_dados(
-                            nomeTabela='usuarios'
+                            nomeTabela='usuarios',
                         )
-                        if len(dados) == 1 and (cargo.value != 'Administrador' or status.value != 'Activo'):
+                        
+                        if len(dados) == 1 and (cargo.value != 'Administrador' or status.value != 'Ativo'):
                             page.snack_bar = SnackBar(value='Não pode editar este usuário', icon=ft.icons.CLOSE, color=ft.colors.RED)
                             page.snack_bar.open = True
                         
@@ -266,7 +268,7 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
                             prefix_icon=ft.icons.CATEGORY,
                             bgcolor=ft.colors.WHITE,
                             options=[
-                                ft.dropdown.Option(text='Administrator'),
+                                ft.dropdown.Option(text='Administrador'),
                                 ft.dropdown.Option(text='Gestor'),
                             ],
                             col={'sm': 12, 'md': 4, 'lg': 2.28}
@@ -289,8 +291,8 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
                             prefix_icon=ft.icons.KEY,
                             bgcolor=ft.colors.WHITE,
                             options=[
-                                ft.dropdown.Option(text='Activo'),
-                                ft.dropdown.Option(text='Inactivo'),
+                                ft.dropdown.Option(text='Ativo'),
+                                ft.dropdown.Option(text='Inativo'),
                             ],
                             col={'sm': 12, 'md': 4, 'lg': 2.28}
                         ),

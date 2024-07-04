@@ -3,7 +3,7 @@ from utils.classRegex import REGEX
 import string
 from random import choice
 from pathlib import Path
-from utils.sqlmanager import inserir_dados, ver_dados, encriptar_valor, editar_dados, apagar_dados
+from utils.sqlmanager import criar_tabela, inserir_dados, ver_dados, encriptar_valor, editar_dados, apagar_dados
 
 def adminPanel(page: ft.Page, username: str = 'Admin'):
     
@@ -101,38 +101,49 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
             
             
             tabela_usuarios.rows.clear()
+
+            try:
             
-            dados = ver_dados(
-                nomeTabela='usuarios',
-                colunas='id,nome,username,email,cargo,status'
-            )            
-            
-            if len(dados) > 0:
-                for dado in dados:
-                    tabela_usuarios.rows.append(
-                        ft.DataRow(
-                            cells=[
-                                ft.DataCell(ft.Text(value=dado[0], size=12, color=ft.colors.WHITE, weight='bold')),
-                                ft.DataCell(ft.Text(value=dado[1], size=12, color=ft.colors.WHITE, weight='bold')),
-                                ft.DataCell(ft.Text(value=dado[2], size=12, color=ft.colors.WHITE, weight='bold')),
-                                ft.DataCell(ft.Text(value=dado[3], size=12, color=ft.colors.WHITE, weight='bold')),
-                                ft.DataCell(ft.Text(value=dado[4], size=12, color=ft.colors.WHITE, weight='bold')),
-                                ft.DataCell(ft.Text(value=dado[5], size=12, color=ft.colors.WHITE, weight='bold')),
-                                ft.DataCell(
-                                    ft.Row(
-                                        controls=[
-                                            IconButton(icon=ft.icons.EDIT, color=ft.colors.BLUE, size=20, on_click=lambda e, id= dado[0]: manage_user(e, id)),
-                                            IconButton(icon=ft.icons.DELETE, color=ft.colors.RED, size=20, on_click=lambda e, id= dado[0]: manage_user(e, id)),
-                                        ]
+                dados = ver_dados(
+                    nomeTabela='usuarios',
+                    colunas='id,nome,username,email,cargo,status'
+                )            
+                
+                if len(dados) > 0:
+                    for dado in dados:
+                        tabela_usuarios.rows.append(
+                            ft.DataRow(
+                                cells=[
+                                    ft.DataCell(ft.Text(value=dado[0], size=12, color=ft.colors.WHITE, weight='bold')),
+                                    ft.DataCell(ft.Text(value=dado[1], size=12, color=ft.colors.WHITE, weight='bold')),
+                                    ft.DataCell(ft.Text(value=dado[2], size=12, color=ft.colors.WHITE, weight='bold')),
+                                    ft.DataCell(ft.Text(value=dado[3], size=12, color=ft.colors.WHITE, weight='bold')),
+                                    ft.DataCell(ft.Text(value=dado[4], size=12, color=ft.colors.WHITE, weight='bold')),
+                                    ft.DataCell(ft.Text(value=dado[5], size=12, color=ft.colors.WHITE, weight='bold')),
+                                    ft.DataCell(
+                                        ft.Row(
+                                            controls=[
+                                                IconButton(icon=ft.icons.EDIT, color=ft.colors.BLUE, size=20, on_click=lambda e, id= dado[0]: manage_user(e, id)),
+                                                IconButton(icon=ft.icons.DELETE, color=ft.colors.RED, size=20, on_click=lambda e, id= dado[0]: manage_user(e, id)),
+                                            ]
+                                        )
                                     )
-                                )
-                            ]
+                                ]
+                            )
                         )
-                    )
+            except Exception as e:
+                page.snack_bar = SnackBar(value=f'Error: {e}', icon=ft.icons.CLOSE, color=ft.colors.RED)
+                page.snack_bar.open = True
+
             
             page.update()
         
         def add_user(e: ft.ControlEvent, id: int = ''):
+            
+            criar_tabela(
+                nomeTabela='usuarios'
+            )
+
             if nome.value != '' and user.value != '' and email.value != '' and cargo.value != None and status.value != None:
                 if REGEX().verificar_email(email.value) == True:
                     if id == '':
@@ -170,7 +181,7 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
                             status.value = None
                             nome.autofocus = True
                             
-                            page.snack_bar = SnackBar(value='Usuário Criado com sucesso', icon=ft.icons.CHECK, color=ft.colors.BLUE)
+                            page.snack_bar = SnackBar(value='Usuário Criado com sucesso', icon=ft.icons.VERIFIED, color=ft.colors.BLUE)
                             page.snack_bar.open = True
                         
                         else:
@@ -203,7 +214,8 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
                                 
                             page.snack_bar = SnackBar(value=f'Usuarios {id} atualizado com sucesso', icon=ft.icons.VERIFIED, color=ft.colors.BLUE)
                             page.snack_bar.open = True
-                                
+
+                        btn_addUser.on_click = lambda e, id = id: add_user(e)        
                         nome.value = ''
                         user.value = ''
                         email.value = ''
@@ -356,7 +368,7 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
                 
                 tabela_usuarios := ft.DataTable(
                     show_bottom_border=True,
-                    width=page.window_width,
+                    width=page.width,
                     
                     columns=[
                         ft.DataColumn(label=ft.Text(value='ID', size=13, color=ft.colors.WHITE, weight='bold')),
@@ -378,16 +390,16 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
         load_users(e)
         
         def on_resize(e):
-            tabela_usuarios.width = page.window_width
+            tabela_usuarios.width = page.width
             page.update()
     
-        page.on_resize.subscribe(on_resize)
+        page.on_resized.subscribe(on_resize)
         
         page.update()
     
     adminpanel = ft.Container(
-        width=page.window_width,
-        height=page.window_height,
+        width=page.width,
+        height=page.height,
         
         content=ft.Column(
             controls=[
@@ -474,8 +486,8 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
                         ),
                         
                         tela_principal := ft.Container(
-                            width=page.window_width - 89,
-                            height=page.window_height,
+                            width=page.width - 89,
+                            height=page.height,
                             
                         )
                     ],
@@ -486,14 +498,14 @@ def adminPanel(page: ft.Page, username: str = 'Admin'):
     )
     
     def on_resize(e):
-        adminpanel.width=page.window_width
-        adminpanel.height=page.window_height
+        adminpanel.width=page.width
+        adminpanel.height=page.height
         
-        tela_principal.width=page.window_width - 89
-        tela_principal.height=page.window_height
+        tela_principal.width=page.width - 89
+        tela_principal.height=page.height
         
         page.update()
     
-    page.on_resize.subscribe(on_resize)
+    page.on_resized.subscribe(on_resize)
     
     return adminpanel

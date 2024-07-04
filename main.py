@@ -4,7 +4,7 @@ from views.admin import *
 
 def main(page: ft.Page):
     page.title = 'Sistema de Getão de Requisições'
-    page.window_maximized = True
+    page.window.maximized = True
     page.theme_mode = ft.ThemeMode.DARK
     
     def esquecisenha(e):
@@ -41,8 +41,8 @@ def main(page: ft.Page):
         page.update()
     
     container = ft.Container(
-        width= page.window_width,
-        height= page.window_height,
+        width= page.width,
+        height= page.height,
         alignment=ft.alignment.center,
         
         content=ft.Column(
@@ -113,13 +113,13 @@ def main(page: ft.Page):
         )
     )
     
-    def on_resize(e):
-        container.width = page.window_width
-        container.height = page.window_height
+    def on_resized(e):
+        container.width = page.width
+        container.height = page.height
         
         page.update()
     
-    page.on_resize.subscribe(on_resize)    
+    page.on_resized.subscribe(on_resized)    
     page.add(container)
 
 
